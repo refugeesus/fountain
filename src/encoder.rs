@@ -9,6 +9,8 @@ use rand::{
     {Rng, SeedableRng},
 };
 use std::cmp;
+use labrador_ldpc::LDPCCode;
+use crate::ldpc::droplet_encode;
 
 /// Encoder for Luby Transform codes.
 ///
@@ -121,6 +123,44 @@ impl Encoder {
                 }
                 Droplet::new(DropType::Edges(self.cnt % self.cnt_blocks), r)
             }
+            EncoderType::SysLdpc(code, _session) => {
+                let begin = (self.cnt % self.cnt_blocks) * self.blocksize;
+                let end = cmp::min(
+                    ((self.cnt % self.cnt_blocks) + 1) * self.blocksize,
+                    self.len,
+                );
+
+                for (src_dat, drop_dat) in self.data[begin..end].iter().zip(r.iter_mut()) {
+                    *drop_dat = *src_dat;
+                }
+                if (self.cnt + 2) > self.cnt_blocks * 2 {
+                    self.encodertype = EncoderType::RandLdpc(code, _session);
+                }
+                let mut drop = Droplet::new(DropType::Edges(self.cnt % self.cnt_blocks), r);
+                droplet_encode(&mut drop, code);
+                drop
+            }
+            EncoderType::RandLdpc(code, _session) => {
+                let degree = self.sol.sample(&mut self.rng);
+                let seed = self.rng.gen::<u64>();
+                let sample = get_sample_from_rng_by_seed(seed, self.dist, degree);
+                let mut r: Vec<u8> = vec![0; self.blocksize];
+
+                for k in sample {
+                    let begin = k * self.blocksize;
+                    let end = cmp::min((k + 1) * self.blocksize, self.len);
+                    let mut j = 0;
+
+                    for i in begin..end {
+                        r[j] ^= self.data[i];
+                        j += 1;
+                    }
+                }
+                let mut drop = Droplet::new(DropType::Seeded(seed, degree), r);
+                droplet_encode(&mut drop, code);
+                drop
+
+            }
         };
 
         self.cnt += 1;
@@ -153,4 +193,8 @@ pub enum EncoderType {
     /// Begins immediately with random encoding.
     /// This may be a better choice when used with high-loss channels.
     Random,
+    /// Systematic encoder, but wrapping droplets in LDPC codes of chosen byte size
+    SysLdpc(LDPCCode, u32),
+    /// Random encoding but wrapping droplets in LDPC codes of chosen byte size
+    RandLdpc(LDPCCode, u32),
 }
