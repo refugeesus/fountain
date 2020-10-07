@@ -144,17 +144,11 @@ impl Encoder {
                 let degree = self.sol.sample(&mut self.rng);
                 let seed = self.rng.gen::<u64>();
                 let sample = get_sample_from_rng_by_seed(seed, self.dist, degree);
-                let mut r: Vec<u8> = vec![0; self.blocksize];
 
                 for k in sample {
                     let begin = k * self.blocksize;
                     let end = cmp::min((k + 1) * self.blocksize, self.len);
-                    let mut j = 0;
-
-                    for i in begin..end {
-                        r[j] ^= self.data[i];
-                        j += 1;
-                    }
+                    xor_bytes(&mut r, &self.data[begin..end]);
                 }
                 let mut drop = Droplet::new(DropType::Seeded(seed, degree), r);
                 droplet_encode(&mut drop, code);
