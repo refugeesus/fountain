@@ -29,14 +29,14 @@ fn enc_dec_helper(chunk_len: usize, loss: f64, enc_type: EncoderType, fname: &st
         let org_drop = drop.data.clone();
         match decoder_type {
             DecoderType::Ms => {
-                droplet_decode(&mut drop, LDPCCode::TM1280, DecoderType::Ms);
+                droplet_decode(&mut drop, LDPCCode::TC512, DecoderType::Ms);
             }
             DecoderType::Bf => {
-                droplet_decode(&mut drop, LDPCCode::TM1280, DecoderType::Bf);
+                droplet_decode(&mut drop, LDPCCode::TC512, DecoderType::Bf);
             }
         }
         // Re-encode decoded codeword to compare with received code
-        let new_code = LDPCCode::TM1280;
+        let new_code = LDPCCode::TC512;
         let mut recode = vec![0u8; new_code.n() / 8];
         let mut data_copy = drop.data.clone();
         data_copy.resize(chunk_len, 0);
@@ -73,5 +73,5 @@ fn enc_dec_helper(chunk_len: usize, loss: f64, enc_type: EncoderType, fname: &st
 
 #[test]
 fn ber_test_enc_dec_systematic() {
-    enc_dec_helper(128, 0.0, EncoderType::SysLdpc(LDPCCode::TM1280, 0), "data/sample2.txt", DecoderType::Bf);
+    enc_dec_helper(32, 0.0, EncoderType::SysLdpc(LDPCCode::TC512, 0), "data/sample2.txt", DecoderType::Bf);
 }

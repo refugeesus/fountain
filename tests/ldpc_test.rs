@@ -29,10 +29,10 @@ fn enc_dec_helper(chunk_len: usize, loss: f64, enc_type: EncoderType, fname: &st
             //Decoder catches droplets
             match decoder_type {
                 DecoderType::Ms => {
-                    droplet_decode(&mut drop, LDPCCode::TM1280, DecoderType::Ms);
+                    droplet_decode(&mut drop, LDPCCode::TC512, DecoderType::Ms);
                 }
                 DecoderType::Bf => {
-                    droplet_decode(&mut drop, LDPCCode::TM1280, DecoderType::Bf);
+                    droplet_decode(&mut drop, LDPCCode::TC512, DecoderType::Bf);
                 }
             }
             match dec.catch(drop) {
@@ -60,10 +60,10 @@ fn enc_dec_helper(chunk_len: usize, loss: f64, enc_type: EncoderType, fname: &st
                 drop.data[3] ^=  1<<7 | 1<<5 | 1<<3;
                 match decoder_type {
                     DecoderType::Ms => {
-                        droplet_decode(&mut drop, LDPCCode::TM1280, DecoderType::Ms);
+                        droplet_decode(&mut drop, LDPCCode::TC512, DecoderType::Ms);
                     }
                     DecoderType::Bf => {
-                        droplet_decode(&mut drop, LDPCCode::TM1280, DecoderType::Bf);
+                        droplet_decode(&mut drop, LDPCCode::TC512, DecoderType::Bf);
                     }
                 }
                 match dec.catch(drop) {
@@ -89,50 +89,50 @@ fn enc_dec_helper(chunk_len: usize, loss: f64, enc_type: EncoderType, fname: &st
 
 #[test]
 fn ldpc_test_enc_dec_random() {
-    enc_dec_helper(128, 0.0, EncoderType::RandLdpc(LDPCCode::TM1280, 0), "data/sample2.txt", DecoderType::Bf);
+    enc_dec_helper(32, 0.0, EncoderType::RandLdpc(LDPCCode::TC512, 0), "data/sample2.txt", DecoderType::Bf);
 
 }
 
 #[test]
 fn ldpc_test_enc_dec_systematic() {
-    enc_dec_helper(128, 0.1, EncoderType::SysLdpc(LDPCCode::TM1280, 0), "data/sample2.txt", DecoderType::Bf);
+    enc_dec_helper(32, 0.1, EncoderType::SysLdpc(LDPCCode::TC512, 0), "data/sample2.txt", DecoderType::Bf);
 }
 
 #[test]
 fn ldpc_test_enc_dec_random_lossy() {
     for loss in &[0.05, 0.1, 0.2, 0.25, 0.3, 0.5, 0.9] {
-        enc_dec_helper(128, *loss, EncoderType::RandLdpc(LDPCCode::TM1280, 0), "data/sample.txt", DecoderType::Bf);
+        enc_dec_helper(32, *loss, EncoderType::RandLdpc(LDPCCode::TC512, 0), "data/sample.txt", DecoderType::Bf);
     }
 }
 
 #[test]
 fn ldpc_test_enc_dec_systematic_lossy() {
     for loss in &[0.05, 0.1, 0.2, 0.25, 0.3, 0.5, 0.9] {
-        enc_dec_helper(128, *loss, EncoderType::SysLdpc(LDPCCode::TM1280, 0), "data/sample.txt", DecoderType::Bf);
+        enc_dec_helper(32, *loss, EncoderType::SysLdpc(LDPCCode::TC512, 0), "data/sample.txt", DecoderType::Bf);
     }
 }
 
 #[test]
 fn ldpc_test_enc_dec_random_minsum() {
-    enc_dec_helper(128, 0.0, EncoderType::RandLdpc(LDPCCode::TM1280, 0), "data/sample.txt", DecoderType::Ms);
+    enc_dec_helper(32, 0.0, EncoderType::RandLdpc(LDPCCode::TC512, 0), "data/sample.txt", DecoderType::Ms);
 }
 
 #[test]
 fn ldpc_test_enc_dec_systematic_minsum() {
-    enc_dec_helper(128, 0.0, EncoderType::SysLdpc(LDPCCode::TM1280, 0), "data/sample.txt", DecoderType::Ms);
+    enc_dec_helper(32, 0.0, EncoderType::SysLdpc(LDPCCode::TC512, 0), "data/sample.txt", DecoderType::Ms);
 }
 
 #[test]
 fn ldpc_test_enc_dec_random_lossy_minsum() {
     for loss in &[0.05, 0.1, 0.2, 0.25, 0.3, 0.5, 0.9] {
-        enc_dec_helper(128, *loss, EncoderType::RandLdpc(LDPCCode::TM1280, 0), "data/sample.txt", DecoderType::Ms);
+        enc_dec_helper(32, *loss, EncoderType::RandLdpc(LDPCCode::TC512, 0), "data/sample.txt", DecoderType::Ms);
     }
 }
 
 #[test]
 fn ldpc_test_enc_dec_systematic_lossy_minsum() {
     for loss in &[0.05, 0.1, 0.2, 0.25, 0.3, 0.5, 0.9] {
-        enc_dec_helper(128, *loss, EncoderType::SysLdpc(LDPCCode::TM1280, 0), "data/sample.txt", DecoderType::Ms);
+        enc_dec_helper(32, *loss, EncoderType::SysLdpc(LDPCCode::TC512, 0), "data/sample.txt", DecoderType::Ms);
     }
 }
 
