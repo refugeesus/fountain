@@ -21,6 +21,7 @@ debug = true
 [dependencies]
 rand = "0.7.3"
 labrador-ldpc = "1.0.0"
+hamming = "0.1"
 
 [dev-dependencies]
 criterion = "0.3"
