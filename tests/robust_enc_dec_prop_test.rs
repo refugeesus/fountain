@@ -18,7 +18,7 @@ proptest! {
         let len = buf.len();
         let to_compare = buf.clone();
 
-        let mut enc = Encoder::robust(buf, chunk_len, EncoderType::Systematic, 0.2, None, 0.05);
+        let mut enc = Encoder::robust(buf, chunk_len, EncoderType::Systematic);
         let mut dec = Decoder::new(len, chunk_len);
 
         let sw = Stopwatch::start_new();
@@ -45,7 +45,7 @@ proptest! {
         let mut res: Vec<u8> = vec![];
 
         for loss in &[0.1, 0.3, 0.5, 0.9] {
-            let mut enc = Encoder::robust(buf.clone(), chunk_len , EncoderType::Systematic, 0.2, None, 0.05);
+            let mut enc = Encoder::robust(buf.clone(), chunk_len , EncoderType::Systematic);
             let sw = Stopwatch::start_new();
             res = run_lossy(&mut enc, &mut dec, *loss);
             println!("total_len: {:?}, chunk_len: {:?}, loss: {:?}, time: {:#?}", total_len, chunk_len, loss, sw.elapsed());

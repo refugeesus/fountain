@@ -8,9 +8,6 @@ fn enc_dec_helper(
     total_len: usize,
     chunk_len: usize,
     loss: f32,
-    c: f32,
-    spike: Option<usize>,
-    delta: f32,
     enc_type: EncoderType,
 ) {
     let s: String = thread_rng()
@@ -21,7 +18,7 @@ fn enc_dec_helper(
     let len = buf.len();
     let to_compare = buf.clone();
 
-    let mut enc = Encoder::robust(buf, chunk_len, enc_type, c, spike, delta);
+    let mut enc = Encoder::robust(buf, chunk_len, enc_type);
     let mut dec = Decoder::new(len, chunk_len);
 
     let mut loss_rng = thread_rng();
@@ -50,19 +47,19 @@ fn enc_dec_helper(
 
 #[test]
 fn robust_enc_dec_simple_systemtatic() {
-    enc_dec_helper(1_024, 512, 0.0, 0.2, None, 0.05, EncoderType::Systematic);
+    enc_dec_helper(1_024, 512, 0.0, EncoderType::Systematic);
 }
 
 #[test]
 fn robust_enc_dec_simple_random() {
-    enc_dec_helper(1_024, 512, 0.0, 0.2, None, 0.05, EncoderType::Random);
+    enc_dec_helper(1_024, 512, 0.0, EncoderType::Random);
 }
 
 #[test]
 fn robust_enc_dec_uneven_sizes_systematic() {
     for size in 1000..1100 {
         for chunk in 100..130 {
-            enc_dec_helper(size, chunk, 0.0, 0.2, None, 0.05, EncoderType::Systematic);
+            enc_dec_helper(size, chunk, 0.0, EncoderType::Systematic);
         }
     }
 }
@@ -71,26 +68,26 @@ fn robust_enc_dec_uneven_sizes_systematic() {
 fn robust_enc_dec_uneven_sizes_random() {
     for size in 1000..1100 {
         for chunk in 100..130 {
-            enc_dec_helper(size, chunk, 0.0, 0.2, None, 0.05, EncoderType::Random);
+            enc_dec_helper(size, chunk, 0.0, EncoderType::Random);
         }
     }
 }
 
 #[test]
 fn robust_enc_dec_simple_systemtatic_lossy() {
-    enc_dec_helper(1_024, 512, 0.3, 0.2, None, 0.05, EncoderType::Systematic);
+    enc_dec_helper(1_024, 512, 0.3, EncoderType::Systematic);
 }
 
 #[test]
 fn robust_enc_dec_simple_random_lossy() {
-    enc_dec_helper(1_024, 512, 0.3, 0.2, None, 0.05, EncoderType::Random);
+    enc_dec_helper(1_024, 512, 0.3, EncoderType::Random);
 }
 
 #[test]
 fn robust_enc_dec_uneven_sizes_systematic_lossy() {
     for size in 1000..1100 {
         for chunk in 100..130 {
-            enc_dec_helper(size, chunk, 0.3, 0.2, None, 0.05, EncoderType::Systematic);
+            enc_dec_helper(size, chunk, 0.3, EncoderType::Systematic);
         }
     }
 }
@@ -99,7 +96,7 @@ fn robust_enc_dec_uneven_sizes_systematic_lossy() {
 fn robust_enc_dec_uneven_sizes_random_lossy() {
     for size in 1000..1100 {
         for chunk in 100..130 {
-            enc_dec_helper(size, chunk, 0.3, 0.2, None, 0.05, EncoderType::Random);
+            enc_dec_helper(size, chunk, 0.3, EncoderType::Random);
         }
     }
 }
@@ -109,7 +106,7 @@ fn robust_enc_dec_combination_systematic_lossy() {
     for size in 1000..1100 {
         for chunk in 100..130 {
             for loss in &[0.1, 0.3, 0.5, 0.9] {
-                enc_dec_helper(size, chunk, *loss, 0.2, None, 0.05, EncoderType::Systematic);
+                enc_dec_helper(size, chunk, *loss, EncoderType::Systematic);
             }
         }
     }
@@ -120,7 +117,7 @@ fn robust_enc_dec_combination_random_lossy() {
     for size in 1000..1100 {
         for chunk in 100..130 {
             for loss in &[0.1, 0.3, 0.5, 0.9] {
-                enc_dec_helper(size, chunk, *loss, 0.2, None, 0.05, EncoderType::Random);
+                enc_dec_helper(size, chunk, *loss, EncoderType::Random);
             }
         }
     }

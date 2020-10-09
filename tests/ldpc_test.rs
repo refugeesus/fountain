@@ -14,7 +14,7 @@ fn enc_dec_helper(chunk_len: usize, loss: f64, enc_type: EncoderType, fname: &st
     let buf_org = buf.clone();
     let tempenctype = enc_type.clone();
     //create an Encoder, and set the length of the chunks.
-    let enc = Encoder::ideal(buf, chunk_len, enc_type);
+    let enc = Encoder::robust(buf, chunk_len, enc_type);
     //let enc = Encoder::robust(buf, chunk_len, enc_type, 0.2, None, 0.05);
     //create a Decoder
     let mut dec = Decoder::new(length, chunk_len);
@@ -27,32 +27,30 @@ fn enc_dec_helper(chunk_len: usize, loss: f64, enc_type: EncoderType, fname: &st
         drops += 1;
         if loss_rng.gen::<f64>() > loss {
             //Decoder catches droplets
-            match decoder_type {
-                DecoderType::Ms => {
-                    droplet_decode(&mut drop, LDPCCode::TC512, DecoderType::Ms);
-                }
-                DecoderType::Bf => {
-                    droplet_decode(&mut drop, LDPCCode::TC512, DecoderType::Bf);
-                }
-            }
-            match dec.catch(drop) {
-                Missing(_stats) => {
-                    ()
-                }
-                Finished(data, stats) => {
-                    let per = packets_lost as f32 / drops as f32;
-                    println!("Success: {:?} | Loss: {:?} | EncodeType: {:?} | Decoder Type: {:?} | Lost: {:?} | Total: {:?} | Percentage: {:?}",
-                        stats, loss, tempenctype, decoder_type, packets_lost, drops, per);
-                    assert_eq!(buf_org.len(), data.len());
-                    for i in 0..length {
-                        assert_eq!(buf_org[i], data[i]);
-                    }
-                    return;
-                }
-            }
-        } else {
             if loss_rng.gen::<f64>() > 0.5 {
-                packets_lost += 1;
+                match decoder_type {
+                    DecoderType::Ms => {
+                        droplet_decode(&mut drop, LDPCCode::TC512, DecoderType::Ms);
+                    }
+                    DecoderType::Bf => {
+                        droplet_decode(&mut drop, LDPCCode::TC512, DecoderType::Bf);
+                    }
+                }
+                match dec.catch(drop) {
+                    Missing(_stats) => {
+                        ()
+                    }
+                    Finished(data, stats) => {
+                        let per = packets_lost as f32 / drops as f32;
+                        println!("Success: {:?} | Loss: {:?} | EncodeType: {:?} | Decoder Type: {:?} | Lost: {:?} | Total: {:?} | Percentage: {:?}",
+                            stats, loss, tempenctype, decoder_type, packets_lost, drops, per);
+                        assert_eq!(buf_org.len(), data.len());
+                        for i in 0..length {
+                            assert_eq!(buf_org[i], data[i]);
+                        }
+                        return;
+                    }
+                }
             } else {
                 drop.data[2] ^=  1<<7 | 1<<5 | 1<<3;
                 drop.data[7] ^=  1<<7 | 1<<5 | 1<<3;
@@ -82,10 +80,11 @@ fn enc_dec_helper(chunk_len: usize, loss: f64, enc_type: EncoderType, fname: &st
                     }
                 }
             }
+        } else {
+            packets_lost += 1;
         }
     }
 }
-
 
 #[test]
 fn ldpc_test_enc_dec_random() {
@@ -125,7 +124,7 @@ fn ldpc_test_enc_dec_systematic_minsum() {
 #[test]
 fn ldpc_test_enc_dec_random_lossy_minsum() {
     for loss in &[0.05, 0.1, 0.2, 0.25, 0.3, 0.5, 0.9] {
-        enc_dec_helper(32, *loss, EncoderType::RandLdpc(LDPCCode::TC512, 0), "data/sample.txt", DecoderType::Ms);
+        enc_dec_helper(32, *loss, EncoderType::RandLdpc(LDPCCode::TC512, 0), "data/sample2.txt", DecoderType::Ms);
     }
 }
 

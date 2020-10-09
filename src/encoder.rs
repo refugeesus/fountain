@@ -11,7 +11,6 @@ use rand::{
 use std::cmp;
 use labrador_ldpc::LDPCCode;
 use crate::ldpc::droplet_encode;
-
 /// Encoder for Luby Transform codes.
 ///
 /// In case you send the packages over UDP, the blocksize should be
@@ -53,14 +52,11 @@ impl Encoder {
         data: Vec<u8>,
         blocksize: usize,
         encodertype: EncoderType,
-        c: f32,
-        spike: Option<usize>,
-        delta: f32,
     ) -> Self {
         let rng = StdRng::from_entropy();
         let len = data.len();
         let cnt_blocks = (len + blocksize - 1) / blocksize;
-        let sol = Soliton::robust(cnt_blocks, c, spike, delta);
+        let sol = Soliton::robust(cnt_blocks as i64, true, 0.1, 0.3);
         Encoder {
             data,
             len,
@@ -167,7 +163,7 @@ pub fn get_sample_from_rng_by_seed(
     range: rand::distributions::Uniform<usize>,
     degree: usize,
 ) -> impl Iterator<Item = usize> {
-    let rng: StdRng = SeedableRng::seed_from_u64(seed);
+    let rng: StdRng = SeedableRng::seed_from_u64(seed as u64);
     rng.sample_iter(range).take(degree)
 }
 
