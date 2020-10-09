@@ -28,7 +28,7 @@ use crate::ldpc::droplet_encode;
 /// // For demonstration purposes, our message is just a range `u8`s.
 /// let msg: Vec<u8> = (0..255).collect();
 ///
-/// let mut enc = Encoder::robust(msg, 64, EncoderType::Random, 0.2, None, 0.05);
+/// let mut enc = Encoder::robust(msg, 64, EncoderType::Random);
 ///
 /// for i in 1..10 {
 ///     println!("droplet {:?}: {:?}", i, enc.next());
