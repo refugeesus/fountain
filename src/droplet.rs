@@ -1,4 +1,6 @@
-#[derive(Debug)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum DropType {
     /// First is seed, second degree
     Seeded(u64, usize),
@@ -7,7 +9,7 @@ pub enum DropType {
 }
 
 /// A Droplet is created by the Encoder.
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Droplet {
     /// The droptype can be based on seed or a list of edges
     pub droptype: DropType,

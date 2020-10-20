@@ -15,7 +15,6 @@ fn enc_dec_helper(chunk_len: usize, loss: f64, enc_type: EncoderType, fname: &st
     let tempenctype = enc_type.clone();
     //create an Encoder, and set the length of the chunks.
     let enc = Encoder::robust(buf, chunk_len, enc_type);
-    //let enc = Encoder::robust(buf, chunk_len, enc_type, 0.2, None, 0.05);
     //create a Decoder
     let mut dec = Decoder::new(length, chunk_len);
 
