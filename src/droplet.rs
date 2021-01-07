@@ -1,4 +1,5 @@
 use serde::{Serialize, Deserialize};
+use bincode;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum DropType {
@@ -27,4 +28,25 @@ impl Droplet {
 pub struct RxDroplet {
     pub edges_idx: Vec<usize>,
     pub data: Vec<u8>,
+}
+
+pub enum BincodeError {
+    DecodeError,
+    EncodeError,
+}
+
+pub fn from_binary(data: Vec<u8>) -> Result<Droplet, BincodeError> {
+    let drop: Option<Droplet> = bincode::deserialize(data.as_ref()).unwrap_or(None);
+    match drop {
+        Some(d) => Ok(d),
+        None => Err(BincodeError::DecodeError),
+    }
+}
+
+pub fn to_binary(droplet: Droplet) -> Result<Vec<u8>, BincodeError> {
+    let data: Option<Vec<u8>> = bincode::serialize(&droplet).ok();
+    match data {
+        Some(d) => Ok(d),
+        None => Err(BincodeError::EncodeError),
+    }
 }
